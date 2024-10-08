@@ -3,6 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './document/user.document';
+import { UserRepository } from './user.repository';
+
 import Joi from 'joi';
 
 @Module({
@@ -14,9 +18,10 @@ import Joi from 'joi';
             }),
             envFilePath: "./apps/auth/.env"
         }),
-        DatabaseModule
+        DatabaseModule,
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [AuthService, UserRepository]
 })
 export class AuthModule {}
