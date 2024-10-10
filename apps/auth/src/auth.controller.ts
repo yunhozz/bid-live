@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 import { AuthService } from './auth.service';
+import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
 
-@Controller()
+@Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService
+    ) {}
 
-  @Get()
-  getHello(): string {
-    return this.authService.getHello();
-  }
+    @Post("/sign-up")
+    async signUp(@Body() dto: CreateUserRequestDTO): Promise<ObjectId> {
+        return await this.authService.createUser(dto);
+    }
 }
