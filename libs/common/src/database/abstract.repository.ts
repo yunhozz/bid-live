@@ -1,60 +1,58 @@
-import { AbstractDocument } from '@app/common/database/abstract.document';
+import { AbstractSchema } from '@app/common/database/abstract.schema';
 import { Connection, FilterQuery, Model, SaveOptions, Types, UpdateQuery } from 'mongoose';
 import { Logger, NotFoundException } from '@nestjs/common';
 
-export abstract class AbstractRepository<TDocument extends AbstractDocument> {
+export abstract class AbstractRepository<TSchema extends AbstractSchema> {
 
     protected abstract readonly logger: Logger;
 
-    constructor(
-        protected readonly model: Model<TDocument>,
+    protected constructor(
+        protected readonly model: Model<TSchema>,
         private readonly connection: Connection
     ) {}
 
     async create(
-        document: Omit<TDocument, '_id'>,
+        schema: Omit<TSchema, "_id">,
         options?: SaveOptions
-    ): Promise<TDocument> {
+    ): Promise<TSchema> {
         const createdDocument = new this.model({
-            ...document,
+            ...schema,
             _id: new Types.ObjectId()
         });
-        return (
-            await createdDocument.save(options)
-        ).toJSON() as unknown as TDocument;
+        const document = await createdDocument.save(options);
+
+        return document.toJSON() as unknown as TSchema;
     }
 
-    async findOne(filterQuery: FilterQuery<TDocument>) {
+    async findOne(filterQuery: FilterQuery<TSchema>) {
         const document = await this.model.findOne(filterQuery, {}, { lean: true });
-
         if (!document) {
-            this.logger.warn('Document not found with filterQuery', filterQuery);
-            throw new NotFoundException('Document not found.');
+            this.logger.warn(`Document not found with filterQuery: ${filterQuery}`);
+            throw new NotFoundException("Document not found.");
         }
 
         return document;
     }
 
     async findOneAndUpdate(
-        filterQuery: FilterQuery<TDocument>,
-        update: UpdateQuery<TDocument>
+        filterQuery: FilterQuery<TSchema>,
+        update: UpdateQuery<TSchema>
     ) {
         const document = await this.model.findOneAndUpdate(filterQuery, update, {
             lean: true,
             new: true
         });
-
         if (!document) {
-            this.logger.warn(`Document not found with filterQuery:`, filterQuery);
-            throw new NotFoundException('Document not found.');
+            this.logger.warn(`Document not found with filterQuery: ${filterQuery}`);
+            throw new NotFoundException("Document not found.");
         }
 
         return document;
     }
 
     async upsert(
-        filterQuery: FilterQuery<TDocument>,
-        document: Partial<TDocument>
+        filterQuery: FilterQuery<TSchema>,
+        document: Partial<TSchema>
     ) {
         return this.model.findOneAndUpdate(filterQuery, document, {
             lean: true,
@@ -63,7 +61,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
         });
     }
 
-    async find(filterQuery: FilterQuery<TDocument>) {
+    async find(filterQuery: FilterQuery<TSchema>) {
         return this.model.find(filterQuery, {}, { lean: true });
     }
 

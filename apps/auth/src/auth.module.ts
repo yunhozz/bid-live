@@ -4,8 +4,8 @@ import { AuthService } from './auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './document/user.document';
-import { UserRepository } from './user.repository';
+import { User, UserSchema } from './persistence/schema/user.schema';
+import { UserRepository } from './persistence/repository/user.repository';
 
 import Joi from 'joi';
 
