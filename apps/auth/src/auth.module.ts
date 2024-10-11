@@ -20,7 +20,8 @@ import { User, UserSchema } from './persistence/schema/user.schema';
                 SERVICE_PORT: Joi.number().required(),
                 MONGODB_URI: Joi.string().required(),
                 JWT_SECRET: Joi.string().required(),
-                JWT_EXPIRATION_TIME: Joi.string().required()
+                JWT_ACCESS_EXPIRES_IN: Joi.string().required(),
+                JWT_REFRESH_EXPIRES_IN: Joi.string().required()
             }),
             envFilePath: "./apps/auth/.env"
         }),
@@ -35,7 +36,7 @@ import { User, UserSchema } from './persistence/schema/user.schema';
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get("JWT_SECRET"),
                 signOptions: {
-                    expiresIn: configService.get("JWT_EXPIRATION_TIME")
+                    expiresIn: `${configService.get("JWT_ACCESS_EXPIRES_IN")} + s`,
                 }
             })
         }),

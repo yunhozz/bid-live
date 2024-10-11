@@ -1,11 +1,6 @@
 import { AbstractSchema } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
-export enum Role {
-    GUEST = "GUEST",
-    USER = "USER",
-    ADMIN = "ADMIN"
-}
+import { role, Role } from '../../type/role.type';
 
 @Schema({ timestamps: true, versionKey: false })
 export class User extends AbstractSchema {
@@ -19,7 +14,7 @@ export class User extends AbstractSchema {
     age: number;
     @Prop({ unique: true })
     phoneNumber: string;
-    @Prop({ type: String, enum: Role, default: Role.GUEST })
+    @Prop({ type: String, default: role.guest })
     role: Role;
 }
 
