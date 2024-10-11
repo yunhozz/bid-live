@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
@@ -9,6 +9,7 @@ import { UserPassword } from './persistence/schema/user-password.schema';
 import { User } from './persistence/schema/user.schema';
 import { TUserPassword } from './type/user-password.type';
 import { TUser } from './type/user.type';
+
 
 @Injectable()
 export class AuthService {
