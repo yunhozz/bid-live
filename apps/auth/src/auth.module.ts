@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import Joi from 'joi';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { UserPasswordRepository } from './persistence/repository/user-password.repository';
 import { UserRepository } from './persistence/repository/user.repository';
 import { UserPassword, UserPasswordSchema } from './persistence/schema/user-password.schema';
 import { User, UserSchema } from './persistence/schema/user.schema';
@@ -41,6 +42,6 @@ import { User, UserSchema } from './persistence/schema/user.schema';
         PassportModule.register({ defaultStrategy: "jwt" })
     ],
     controllers: [AuthController],
-    providers: [AuthService, UserRepository]
+    providers: [AuthService, UserRepository, UserPasswordRepository]
 })
 export class AuthModule {}

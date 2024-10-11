@@ -6,7 +6,9 @@ import { User } from './user.schema';
 export class UserPassword extends AbstractSchema {
     @Prop({ ref: User.name })
     user: User;
+    @Prop()
     password: string;
+    @Prop()
     salt: string;
 }
 

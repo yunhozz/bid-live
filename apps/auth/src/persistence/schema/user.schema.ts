@@ -11,9 +11,11 @@ export enum Role {
 export class User extends AbstractSchema {
     @Prop({ unique: true })
     email: string;
+    @Prop()
     name: string;
     @Prop({ unique: true })
     nickname: string;
+    @Prop()
     age: number;
     @Prop({ unique: true })
     phoneNumber: string;
