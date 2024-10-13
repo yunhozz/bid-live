@@ -41,7 +41,7 @@ export class AuthService {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(dto.password, salt);
         const userPassword: TUserPassword = {
-            user: { _id: createdUser._id, ...userSchema },
+            userId: createdUser._id,
             password: hashedPassword,
             salt
         };
@@ -53,10 +53,9 @@ export class AuthService {
 
     async loginUser(dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
         const user = await this.userRepository.findOne({ email: dto.email });
-        console.log(user._id);
 
         if (user) {
-            const userPassword = await this.userPasswordRepository.findOne({ user: user._id });
+            const userPassword = await this.userPasswordRepository.findOne({ userId: user._id });
             if (userPassword && await bcrypt.compare(dto.password, userPassword.password)) {
                 return await this.generateJwtTokens(user._id, user.email, user.role);
             }

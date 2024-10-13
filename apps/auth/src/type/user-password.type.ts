@@ -1,7 +1,7 @@
-import { User } from '../persistence/schema/user.schema';
+import { Types } from 'mongoose';
 
 export type TUserPassword = {
-    user: User;
+    userId: Types.ObjectId;
     password: string;
     salt: string;
 }

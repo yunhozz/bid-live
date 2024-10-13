@@ -36,7 +36,7 @@ import { User, UserSchema } from './persistence/schema/user.schema';
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get("JWT_SECRET"),
                 signOptions: {
-                    expiresIn: `${configService.get("JWT_ACCESS_EXPIRES_IN")} + s`,
+                    expiresIn: `${configService.get("JWT_ACCESS_EXPIRES_IN")}s`,
                 }
             })
         }),
