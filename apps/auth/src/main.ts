@@ -1,4 +1,4 @@
-import { HttpExceptionFilter, PipeInterceptor, ValidationExceptionFilter } from '@app/common';
+import { CustomExceptionFilter, PipeInterceptor } from '@app/common';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -6,8 +6,8 @@ import { AuthModule } from './auth.module';
 
 async function bootstrap() {
     const app = await NestFactory.create(AuthModule);
+    app.useGlobalFilters(new CustomExceptionFilter());
     app.useGlobalPipes(new ValidationPipe());
-    app.useGlobalFilters(new HttpExceptionFilter(), new ValidationExceptionFilter());
     app.useGlobalInterceptors(new PipeInterceptor());
 
     const configService = app.get(ConfigService);
