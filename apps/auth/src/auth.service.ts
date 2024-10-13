@@ -1,5 +1,5 @@
 import { TokenPayload } from '@app/common/strategy/jwt.strategy';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -27,6 +27,10 @@ export class AuthService {
     ) {}
 
     async createUser(dto: CreateUserRequestDTO): Promise<ObjectId> {
+        if (await this.userRepository.findOne({ email: dto.email })) {
+            throw new BadRequestException(`A duplicate email exists : ${dto.email}`);
+        }
+
         const user: TUser = {
             email: dto.email,
             name: dto.name,
@@ -58,6 +62,8 @@ export class AuthService {
             const userPassword = await this.userPasswordRepository.findOne({ userId: user._id });
             if (userPassword && await bcrypt.compare(dto.password, userPassword.password)) {
                 return await this.generateJwtTokens(user._id, user.email, user.role);
+            } else {
+                throw new UnauthorizedException('Please check your password again.');
             }
         } else {
             throw new UnauthorizedException(`User Not Found : ${dto.email}`);
