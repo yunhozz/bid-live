@@ -1,6 +1,6 @@
 import { AbstractSchema } from '@app/common/database/abstract.schema';
-import { Connection, FilterQuery, Model, SaveOptions, Types, UpdateQuery } from 'mongoose';
 import { Logger, NotFoundException } from '@nestjs/common';
+import { Connection, FilterQuery, Model, SaveOptions, Types, UpdateQuery } from 'mongoose';
 
 export abstract class AbstractRepository<TSchema extends AbstractSchema> {
 
@@ -63,6 +63,11 @@ export abstract class AbstractRepository<TSchema extends AbstractSchema> {
 
     async find(filterQuery: FilterQuery<TSchema>) {
         return this.model.find(filterQuery, {}, { lean: true });
+    }
+
+    async exists(filterQuery: FilterQuery<TSchema>): Promise<boolean> {
+        const found = await this.model.find(filterQuery, {}, { lean: true });
+        return found.length > 0;
     }
 
     async startTransaction() {

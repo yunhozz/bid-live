@@ -27,12 +27,14 @@ export class AuthService {
     ) {}
 
     async createUser(dto: CreateUserRequestDTO): Promise<ObjectId> {
-        if (await this.userRepository.findOne({ email: dto.email })) {
-            throw new BadRequestException(`A duplicate email exists : ${dto.email}`);
+        const email = dto.email;
+
+        if (await this.userRepository.exists({ email })) {
+            throw new BadRequestException(`A duplicate email exists : ${email}`);
         }
 
         const user: TUser = {
-            email: dto.email,
+            email,
             name: dto.name,
             nickname: dto.nickname,
             age: dto.age,
