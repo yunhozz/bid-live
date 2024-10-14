@@ -1,4 +1,4 @@
-import { AbstractSchema, role, Role } from '@app/common';
+import { AbstractSchema, ROLE, Role } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true, versionKey: false })
@@ -13,7 +13,7 @@ export class User extends AbstractSchema {
     age: number;
     @Prop({ unique: true })
     phoneNumber: string;
-    @Prop({ type: String, default: role.guest })
+    @Prop({ type: String, default: ROLE.guest })
     role: Role;
 }
 

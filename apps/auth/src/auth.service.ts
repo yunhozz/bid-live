@@ -1,4 +1,4 @@
-import { CreateUserEvent, Page, PageRequest, ProducerService, Role } from '@app/common';
+import { CreateUserEvent, KAFKA_CONSTANTS, Page, PageRequest, ProducerService, Role } from '@app/common';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -55,7 +55,7 @@ export class AuthService {
         await this.userPasswordRepository.create(plainToInstance(UserPassword, userPassword));
 
         await this.producerService.produce({
-            topic: "create-user-topic",
+            topic: KAFKA_CONSTANTS.CREATE_USER_TOPIC,
             messages: [
                 {
                     value: JSON.stringify(new CreateUserEvent(

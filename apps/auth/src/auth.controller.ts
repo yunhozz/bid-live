@@ -1,4 +1,4 @@
-import { Page, PageRequest, role, Roles, RolesGuard } from '@app/common';
+import { Page, PageRequest, ROLE, Roles, RolesGuard } from '@app/common';
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { AuthService } from './auth.service';
@@ -25,7 +25,7 @@ export class AuthController {
 
     @Get("/users")
     @UseGuards(RolesGuard)
-    @Roles(role.admin)
+    @Roles(ROLE.admin)
     async lookupUsers(
         @Query("page") page: string = "1",
         @Query("limit") limit: string = "10"

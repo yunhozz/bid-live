@@ -7,6 +7,7 @@ export * from './interceptor/pipe.interceptor';
 export * from './kafka/producer.service';
 export * from './kafka/consumer.service';
 export * from './kafka/event/create-user.event';
+export * from './kafka/kafka.constants';
 export * from './pagination/page';
 export * from './pagination/page-request';
 export * from './decorator/roles.decorator';
