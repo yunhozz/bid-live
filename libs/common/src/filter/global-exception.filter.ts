@@ -9,7 +9,7 @@ import {
 import { Request, Response } from 'express';
 
 @Catch()
-export class CustomExceptionFilter implements ExceptionFilter {
+export class GlobalExceptionFilter implements ExceptionFilter {
 
     catch(exception: InternalServerErrorException | Error, host: ArgumentsHost): any {
         const ctx = host.switchToHttp();
