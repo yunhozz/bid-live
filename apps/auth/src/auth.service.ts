@@ -1,5 +1,4 @@
-import { CreateUserEvent, ProducerService } from '@app/common';
-import { TokenPayload } from '@app/common/strategy/jwt.strategy';
+import { CreateUserEvent, Page, PageRequest, ProducerService, Role } from '@app/common';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -13,7 +12,6 @@ import { UserPasswordRepository } from './persistence/repository/user-password.r
 import { UserRepository } from './persistence/repository/user.repository';
 import { UserPassword } from './persistence/schema/user-password.schema';
 import { User } from './persistence/schema/user.schema';
-import { Role } from './type/role.type';
 import { TUserPassword } from './type/user-password.type';
 import { TUser } from './type/user.type';
 
@@ -88,8 +86,13 @@ export class AuthService {
         }
     }
 
+    async findAllUsersOnPage(page: PageRequest): Promise<Page<TUser>> {
+        const found = await this.userRepository.findByPage({}, page);
+        return new Page(page.getLimit(), found.count, found.items);
+    }
+
     private async generateJwtTokens(sub: ObjectId, username: string, role: Role): Promise<JwtTokenResponseDTO> {
-        const payload: TokenPayload = { sub, username, role };
+        const payload = { sub, username, role };
         const secret = this.configService.get("JWT_SECRET");
         const accessTokenExpiresIn = this.configService.get("JWT_ACCESS_EXPIRES_IN");
         const refreshTokenExpiresIn = this.configService.get("JWT_REFRESH_EXPIRES_IN");

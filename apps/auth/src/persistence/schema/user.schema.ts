@@ -1,6 +1,5 @@
-import { AbstractSchema } from '@app/common';
+import { AbstractSchema, role, Role } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { role, Role } from '../../type/role.type';
 
 @Schema({ timestamps: true, versionKey: false })
 export class User extends AbstractSchema {
