@@ -1,3 +1,4 @@
+import { CreateUserEvent, ProducerService } from '@app/common';
 import { TokenPayload } from '@app/common/strategy/jwt.strategy';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -23,7 +24,8 @@ export class AuthService {
         private readonly userRepository: UserRepository,
         private readonly userPasswordRepository: UserPasswordRepository,
         private readonly jwtService: JwtService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly producerService: ProducerService
     ) {}
 
     async createUser(dto: CreateUserRequestDTO): Promise<ObjectId> {
@@ -53,6 +55,20 @@ export class AuthService {
         };
 
         await this.userPasswordRepository.create(plainToInstance(UserPassword, userPassword));
+
+        await this.producerService.produce({
+            topic: "create-user-topic",
+            messages: [
+                {
+                    value: JSON.stringify(new CreateUserEvent(
+                        createdUser._id,
+                        createdUser.email,
+                        createdUser.name,
+                        createdUser.nickname
+                    ))
+                }
+            ]
+        });
 
         return createdUser._id;
     }

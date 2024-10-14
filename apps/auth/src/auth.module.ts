@@ -1,6 +1,8 @@
-import { DatabaseModule } from '@app/common';
-import { Module } from '@nestjs/common';
+import { DatabaseModule, GlobalExceptionFilter, PipeInterceptor } from '@app/common';
+import { KafkaClientModule } from '@app/common/kafka/kafka-client.module';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
@@ -40,9 +42,17 @@ import { User, UserSchema } from './persistence/schema/user.schema';
                 }
             })
         }),
-        PassportModule.register({ defaultStrategy: "jwt" })
+        PassportModule.register({ defaultStrategy: "jwt" }),
+        KafkaClientModule
     ],
     controllers: [AuthController],
-    providers: [AuthService, UserRepository, UserPasswordRepository]
+    providers: [
+        { provide: APP_FILTER, useClass: GlobalExceptionFilter },
+        { provide: APP_PIPE, useClass: ValidationPipe },
+        { provide: APP_INTERCEPTOR, useClass: PipeInterceptor },
+        AuthService,
+        UserRepository,
+        UserPasswordRepository
+    ]
 })
 export class AuthModule {}
