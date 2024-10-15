@@ -1,8 +1,8 @@
-import { AbstractSchema, ROLE, Role } from '@app/common';
+import { MongoSchema, ROLE, Role } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true, versionKey: false })
-export class User extends AbstractSchema {
+export class User extends MongoSchema {
     @Prop({ unique: true })
     email: string;
     @Prop()

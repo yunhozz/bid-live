@@ -1,9 +1,9 @@
-import { AbstractSchema } from '@app/common/database/abstract.schema';
+import { MongoSchema } from '@app/common/database/mongo.schema';
 import { PageRequest } from '@app/common/pagination/page-request';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Connection, FilterQuery, Model, SaveOptions, Types, UpdateQuery } from 'mongoose';
 
-export abstract class AbstractRepository<TSchema extends AbstractSchema> {
+export abstract class MongoRepository<TSchema extends MongoSchema> {
 
     protected abstract readonly logger: Logger;
 
