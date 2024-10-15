@@ -3,7 +3,7 @@ import { ProducerService } from '@app/common/kafka/producer.service';
 import { Module } from '@nestjs/common';
 
 @Module({
-    providers: [ProducerService, ConsumerService],
-    exports: [ProducerService, ConsumerService]
+	providers: [ProducerService, ConsumerService],
+	exports: [ProducerService, ConsumerService]
 })
 export class KafkaClientModule {}

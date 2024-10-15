@@ -3,18 +3,18 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true, versionKey: false })
 export class User extends MongoSchema {
-    @Prop({ unique: true })
-    email: string;
-    @Prop()
-    name: string;
-    @Prop({ unique: true })
-    nickname: string;
-    @Prop()
-    age: number;
-    @Prop({ unique: true })
-    phoneNumber: string;
-    @Prop({ type: String, default: ROLE.guest })
-    role: Role;
+	@Prop({ unique: true })
+	email: string;
+	@Prop()
+	name: string;
+	@Prop({ unique: true })
+	nickname: string;
+	@Prop()
+	age: number;
+	@Prop({ unique: true })
+	phoneNumber: string;
+	@Prop({ type: String, default: ROLE.guest })
+	role: Role;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

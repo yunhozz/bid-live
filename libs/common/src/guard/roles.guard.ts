@@ -5,13 +5,12 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+		const roles: string[] = getMetadata(ROLES, context.getHandler());
+		if (!roles) return true;
 
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-        const roles: string[] = getMetadata(ROLES, context.getHandler());
-        if (!roles) return true;
+		const req = context.switchToHttp().getRequest();
 
-        const req = context.switchToHttp().getRequest();
-
-        return roles.some(role => req.user?.role == role);
-    }
+		return roles.some((role) => req.user?.role === role);
+	}
 }

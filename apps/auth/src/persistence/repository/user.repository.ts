@@ -6,13 +6,12 @@ import { User } from '../schema/user.schema';
 
 @Injectable()
 export class UserRepository extends MongoRepository<User> {
+	protected readonly logger = new Logger(UserRepository.name);
 
-    protected readonly logger = new Logger(UserRepository.name);
-
-    constructor(
-        @InjectModel(User.name) private readonly userModel: Model<User>,
-        @InjectConnection() connection: Connection
-    ) {
-        super(userModel, connection);
-    }
+	constructor(
+		@InjectModel(User.name) private readonly userModel: Model<User>,
+		@InjectConnection() connection: Connection
+	) {
+		super(userModel, connection);
+	}
 }
