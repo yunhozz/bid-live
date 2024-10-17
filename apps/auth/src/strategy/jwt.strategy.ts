@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserRepository } from '../persistence/repository/user.repository';
 
 @Injectable()
@@ -16,11 +16,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		});
 	}
 
-	async validate(jwtPayload: any, done: VerifiedCallback): Promise<any> {
+	async validate(jwtPayload: any): Promise<any> {
 		console.log(jwtPayload);
 		const sub = jwtPayload['sub'];
 		const user = await this.userRepository.findOne({ _id: sub });
+		if (!user) {
+			throw new UnauthorizedException();
+		}
 
-		return done(null, user);
+		return user;
 	}
 }
