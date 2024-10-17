@@ -1,4 +1,4 @@
-import { RedisRepository } from '@app/common/database/redis.repository';
+import { RedisRepository } from '@app/common/config/database/redis.repository';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
