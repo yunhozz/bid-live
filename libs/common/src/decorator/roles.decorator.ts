@@ -1,4 +1,4 @@
-import { SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
 export const ROLE = {
 	guest: 'GUEST',
@@ -6,8 +6,6 @@ export const ROLE = {
 	admin: 'ADMIN'
 } as const;
 
-export const ROLES = 'roles';
-
 export type Role = (typeof ROLE)[keyof typeof ROLE]; // GUEST | USER | ADMIN
 
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES, roles);
+export const Roles = Reflector.createDecorator<Role[]>();
