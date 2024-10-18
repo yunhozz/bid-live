@@ -4,6 +4,7 @@ export * from './config/database/mongo.schema';
 export * from './config/database/redis.repository';
 export * from './config/filter/global-exception.filter';
 export * from './config/interceptor/pipe.interceptor';
+export * from './config/interceptor/token.interceptor';
 export * from './config/guard/roles.guard';
 export * from './kafka/kafka-client.module';
 export * from './kafka/producer.service';

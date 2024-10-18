@@ -76,20 +76,6 @@ export class AuthService {
 		return createdUser._id;
 	}
 
-    async loginUser(dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
-        const user = await this.userRepository.findOne({ email: dto.email });
-
-        if (user) {
-            const userPassword = await this.userPasswordRepository.findOne({ userId: user._id });
-            if (userPassword && await bcrypt.compare(dto.password, userPassword.password)) {
-                return await this.generateJwtTokens(user._id, user.email, user.role);
-            } else {
-                throw new UnauthorizedException('Please check your password again.');
-            }
-        } else {
-            throw new UnauthorizedException(`User Not Found : ${dto.email}`);
-        }
-    }
 	async loginUser(dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
 		const user = await this.userRepository.findOne({ email: dto.email });
 		if (user) {
@@ -111,18 +97,13 @@ export class AuthService {
 		}
 	}
 
-
 	async findAllUsersOnPage(page: PageRequest): Promise<Page<TUser>> {
 		const found = await this.userRepository.findByPage({}, page);
 		return new Page(page.getLimit(), found.count, found.items);
 	}
 
 	private async generateJwtTokens(sub: ObjectId, username: string, role: Role): Promise<JwtTokenResponseDTO> {
-		const payload = {
-			sub,
-			username,
-			role
-		};
+		const payload = { sub, username, role };
 		const secret = this.configService.get('JWT_SECRET');
 		const accessTokenExpiresIn = this.configService.get('JWT_ACCESS_EXPIRES_IN');
 		const refreshTokenExpiresIn = this.configService.get('JWT_REFRESH_EXPIRES_IN');

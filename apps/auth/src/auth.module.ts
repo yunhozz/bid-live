@@ -1,4 +1,10 @@
-import { DatabaseModule, GlobalExceptionFilter, KafkaClientModule, PipeInterceptor } from '@app/common';
+import {
+	DatabaseModule,
+	GlobalExceptionFilter,
+	KafkaClientModule,
+	PipeInterceptor,
+	TokenInterceptor
+} from '@app/common';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -52,6 +58,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 		{ provide: APP_FILTER, useClass: GlobalExceptionFilter },
 		{ provide: APP_PIPE, useClass: ValidationPipe },
 		{ provide: APP_INTERCEPTOR, useClass: PipeInterceptor },
+		{ provide: APP_INTERCEPTOR, useClass: TokenInterceptor },
 		AuthService,
 		UserRepository,
 		UserPasswordRepository,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
@@ -14,12 +14,8 @@ export class RedisRepository {
 		this.redis = new Redis(redisConfig);
 	}
 
-	async get(key: string): Promise<string> {
-		const value = this.redis.get(key);
-		if (!value) {
-			throw new NotFoundException(`There is no data for this key : ${key}`);
-		}
-		return value;
+	async get(key: string): Promise<string | null> {
+		return this.redis.get(key);
 	}
 
 	async set(key: string, value: string, ttl?: number): Promise<void> {
@@ -28,6 +24,8 @@ export class RedisRepository {
 
 	async delete(key: any): Promise<void> {
 		const value = await this.get(key);
-		this.redis.set(key, value, 'PX', 1);
+		if (value) {
+			this.redis.set(key, value, 'PX', 1);
+		}
 	}
 }
