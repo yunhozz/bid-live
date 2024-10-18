@@ -35,7 +35,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		if (!(await this.checkExpiration(token, exp))) {
 			const tokenResponseDTO = await this.reissueToken(sub, username, role);
 			req['newAccessToken'] = tokenResponseDTO.accessToken;
-			await this.redisRepository.set(sub, tokenResponseDTO.refreshToken);
+			await this.redisRepository.set(
+				username,
+				tokenResponseDTO.refreshToken,
+				tokenResponseDTO.refreshTokenExpires
+			);
 		}
 
 		return { sub, username, role };
