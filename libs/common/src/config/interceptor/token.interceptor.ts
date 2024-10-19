@@ -11,8 +11,9 @@ export class TokenInterceptor implements NestInterceptor {
 
 		return next.handle().pipe(
 			tap(() => {
-				if (request['newAccessToken']) {
-					response.setHeader('Authorization', `Bearer ${request['newAccessToken']}`);
+				const token = request['New-Token'];
+				if (token) {
+					response.setHeader('Authorization', `Bearer ${token}`);
 				}
 			})
 		);

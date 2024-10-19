@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
+import { Request } from 'express';
 import { ObjectId } from 'mongodb';
 import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
 import { UserLoginRequestDTO } from './dto/request/user-login-request.dto';
@@ -20,6 +21,7 @@ import { UserPasswordRepository } from './persistence/repository/user-password.r
 import { UserRepository } from './persistence/repository/user.repository';
 import { UserPassword } from './persistence/schema/user-password.schema';
 import { User } from './persistence/schema/user.schema';
+import { JwtPayload, JwtUser } from './type/jwt-payload.type';
 import { TUserPassword } from './type/user-password.type';
 import { TUser } from './type/user.type';
 
@@ -119,5 +121,45 @@ export class AuthService {
 		});
 
 		return new JwtTokenResponseDTO(sub, accessToken, refreshToken, refreshTokenExpiresIn);
+	}
+
+	async validateJwtPayload(req: Request, payload: JwtPayload): Promise<JwtUser> {
+		const { sub, username, role, iat, exp } = payload;
+		const token = req.headers.authorization?.replace('Bearer ', '');
+
+		if (!(await this.userRepository.exists({ _id: sub }))) {
+			throw new NotFoundException(`User Not Found : ${sub}`);
+		}
+
+		if (!(await this.checkExpiration(token, exp))) {
+			const tokenResponseDTO = await this.reissueToken(sub, username, role);
+			req['New-Token'] = tokenResponseDTO.accessToken;
+			await this.redisRepository.set(
+				username,
+				tokenResponseDTO.refreshToken,
+				tokenResponseDTO.refreshTokenExpires
+			);
+		}
+
+		return { sub, username, role };
+	}
+
+	private async reissueToken(sub: ObjectId, username: string, role: Role): Promise<JwtTokenResponseDTO> {
+		let refreshToken = await this.redisRepository.get(username);
+		if (!refreshToken) {
+			throw new UnauthorizedException('Please log in again.');
+		}
+
+		const secret = this.configService.get('JWT_SECRET');
+		if (!this.jwtService.verify(refreshToken, { secret })) {
+			throw new UnauthorizedException('Invalid refresh token.');
+		}
+
+		return this.generateJwtTokens(sub, username, role);
+	}
+
+	private async checkExpiration(token: string, exp: number): Promise<boolean> {
+		const now = Math.floor(Date.now() / 1000);
+		return exp - now >= 180;
 	}
 }
