@@ -24,7 +24,7 @@ export abstract class MongoRepository<TSchema extends MongoSchema> {
 	async findOne(filterQuery: FilterQuery<TSchema>, ...joins: string[]) {
 		const document = await this.model
 			.findOne(filterQuery, {}, { lean: true })
-			.populate(joins)
+			.select(joins.map((j) => `+${j}`).join(' '))
 			.exec();
 		if (!document) {
 			this.logger.warn(`Document not found with filterQuery: ${filterQuery}`);
@@ -58,7 +58,7 @@ export abstract class MongoRepository<TSchema extends MongoSchema> {
 	async findAll(filterQuery: FilterQuery<TSchema>, page?: PageRequest, ...joins: string[]) {
 		const items = await this.model
 			.find(filterQuery, {}, { lean: true })
-			.populate(joins)
+			.select(joins.map((j) => `+${j}`).join(' '))
 			.skip(page?.getOffset())
 			.limit(page?.getLimit())
 			.exec();

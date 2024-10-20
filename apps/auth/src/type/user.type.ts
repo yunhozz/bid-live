@@ -1,10 +1,6 @@
-import { ObjectId } from 'mongodb';
+import { UserPassword } from '../persistence/schema/user-password.schema';
 import { User } from '../persistence/schema/user.schema';
 
 export type TUser = Omit<User, '_id' | 'role'>;
 
-export type TUserPassword = {
-	userId: ObjectId;
-	password: string;
-	salt: string;
-};
+export type TUserPassword = Omit<UserPassword, '_id'>;

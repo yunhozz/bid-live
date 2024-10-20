@@ -45,26 +45,22 @@ export class UserService {
 			throw new BadRequestException(`A duplicate email exists : ${email}`);
 		}
 
+		const salt = await bcrypt.genSalt();
+		const hashedPassword = await bcrypt.hash(dto.password, salt);
+		const userPassword: TUserPassword = { password: hashedPassword, salt };
+		const passwordSchema = plainToInstance(UserPassword, userPassword);
+		await this.userPasswordRepository.create(passwordSchema);
+
 		const user: TUser = {
 			email,
 			name: dto.name,
 			nickname: dto.nickname,
 			age: dto.age,
-			phoneNumber: dto.phoneNumber
+			phoneNumber: dto.phoneNumber,
+			userPassword: passwordSchema
 		};
-
 		const userSchema = plainToInstance(User, user);
 		const createdUser = await this.userRepository.create(userSchema);
-
-		const salt = await bcrypt.genSalt();
-		const hashedPassword = await bcrypt.hash(dto.password, salt);
-		const userPassword: TUserPassword = {
-			userId: createdUser._id,
-			password: hashedPassword,
-			salt
-		};
-
-		await this.userPasswordRepository.create(plainToInstance(UserPassword, userPassword));
 
 		await this.producerService.produce({
 			topic: KAFKA_CONSTANTS.CREATE_USER_TOPIC,
@@ -88,8 +84,7 @@ export class UserService {
 	async loginUser(dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
 		const user = await this.userRepository.findOne({ email: dto.email });
 		if (user) {
-			const userPassword = await this.userPasswordRepository.findOne({ userId: user._id });
-			if (userPassword && (await bcrypt.compare(dto.password, userPassword.password))) {
+			if (await bcrypt.compare(dto.password, user.userPassword.password)) {
 				const tokenResponseDTO = await this.generateJwtTokens(
 					user._id,
 					user.email,
