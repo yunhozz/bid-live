@@ -1,32 +1,32 @@
 import { Page, PageRequest, ROLE, Roles, RolesGuard } from '@app/common';
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ObjectId } from 'mongodb';
 import { AuthService } from './auth.service';
-import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
-import { UserLoginRequestDTO } from './dto/request/user-login-request.dto';
-import { JwtTokenResponseDTO } from './dto/response/jwt-token-response.dto';
-import { TUser } from './type/user.type';
 
 @Controller('auth')
+@UseGuards(AuthGuard(), RolesGuard)
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	@Post('/sign-up')
-	async signUp(@Body() dto: CreateUserRequestDTO): Promise<ObjectId> {
-		return await this.authService.createUser(dto);
-	}
-
-	@Post('/sign-in')
-	async signIn(@Body() dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
-		return await this.authService.loginUser(dto);
-	}
-
 	@Get('/users')
-	@UseGuards(AuthGuard(), RolesGuard)
 	@Roles(ROLE.admin)
-	async lookupUsers(@Query('page') page: string = '1', @Query('limit') limit: string = '10'): Promise<Page<TUser>> {
+	async lookupUsers(
+		@Query('page') page: string = '1',
+		@Query('limit') limit: string = '10'
+	): Promise<Page<any>> {
 		const pageRequest = new PageRequest(parseInt(page), parseInt(limit));
 		return await this.authService.findAllUsersOnPage(pageRequest);
 	}
+
+	@Get('/users/:id')
+	@Roles(ROLE.admin)
+	async lookupUserDetails(@Param('id') id: string): Promise<any> {
+		return this.authService.findUserDetails(id);
+	}
+
+	@Delete('/logout')
+	async signOut(): Promise<any> {}
+
+	@Delete('/withdraw')
+	async withdraw(): Promise<any> {}
 }

@@ -19,6 +19,8 @@ import { UserRepository } from './persistence/repository/user.repository';
 import { UserPassword, UserPasswordSchema } from './persistence/schema/user-password.schema';
 import { User, UserSchema } from './persistence/schema/user.schema';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 
 @Module({
 	imports: [
@@ -53,12 +55,13 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 		PassportModule.register({ defaultStrategy: 'jwt' }),
 		KafkaClientModule
 	],
-	controllers: [AuthController],
+	controllers: [UserController, AuthController],
 	providers: [
 		{ provide: APP_FILTER, useClass: GlobalExceptionFilter },
 		{ provide: APP_PIPE, useClass: ValidationPipe },
 		{ provide: APP_INTERCEPTOR, useClass: PipeInterceptor },
 		{ provide: APP_INTERCEPTOR, useClass: TokenInterceptor },
+		UserService,
 		AuthService,
 		UserRepository,
 		UserPasswordRepository,

@@ -21,8 +21,11 @@ export abstract class MongoRepository<TSchema extends MongoSchema> {
 		return document.toJSON() as unknown as TSchema;
 	}
 
-	async findOne(filterQuery: FilterQuery<TSchema>) {
-		const document = await this.model.findOne(filterQuery, {}, { lean: true });
+	async findOne(filterQuery: FilterQuery<TSchema>, ...joins: string[]) {
+		const document = await this.model
+			.findOne(filterQuery, {}, { lean: true })
+			.populate(joins)
+			.exec();
 		if (!document) {
 			this.logger.warn(`Document not found with filterQuery: ${filterQuery}`);
 			throw new NotFoundException('Document not found.');
@@ -52,27 +55,21 @@ export abstract class MongoRepository<TSchema extends MongoSchema> {
 		});
 	}
 
-	async find(filterQuery: FilterQuery<TSchema>) {
-		return this.model.find(filterQuery, {}, { lean: true });
-	}
-
-	async findByPage(filterQuery: FilterQuery<TSchema>, page: PageRequest) {
+	async findAll(filterQuery: FilterQuery<TSchema>, page?: PageRequest, ...joins: string[]) {
 		const items = await this.model
 			.find(filterQuery, {}, { lean: true })
-			.skip(page.getOffset())
-			.limit(page.getLimit())
+			.populate(joins)
+			.skip(page?.getOffset())
+			.limit(page?.getLimit())
 			.exec();
-		const count = await this.model.countDocuments();
 
-		return {
-			count,
-			items
-		};
+		const total = await this.model.countDocuments();
+
+		return { total, items };
 	}
 
 	async exists(filterQuery: FilterQuery<TSchema>): Promise<boolean> {
 		const found = await this.model.find(filterQuery, {}, { lean: true });
-
 		return found.length > 0;
 	}
 

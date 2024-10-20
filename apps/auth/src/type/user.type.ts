@@ -1,3 +1,10 @@
-import { CreateUserRequestDTO } from '../dto/request/create-user-request.dto';
+import { ObjectId } from 'mongodb';
+import { User } from '../persistence/schema/user.schema';
 
-export type TUser = Omit<CreateUserRequestDTO, 'password'>;
+export type TUser = Omit<User, '_id' | 'role'>;
+
+export type TUserPassword = {
+	userId: ObjectId;
+	password: string;
+	salt: string;
+};
