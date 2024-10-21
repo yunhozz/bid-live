@@ -24,17 +24,14 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response
 	): Promise<JwtTokenResponseDTO> {
 		const tokenResponseDTO = await this.authService.loginUser(dto);
-		await setCookie(res, 'access-token', tokenResponseDTO.accessToken, {
-			path: '/',
-			maxAge: tokenResponseDTO.accessTokenExpires
-		});
+		await setCookie(res, 'Access-Token', tokenResponseDTO.accessToken, { path: '/' });
 
 		return tokenResponseDTO;
 	}
 
 	@Delete('/logout')
 	async signOut(@Res({ passthrough: true }) res: Response): Promise<void> {
-		await removeCookie(res, 'access-token', { path: '/' });
+		await removeCookie(res, 'Access-Token', { path: '/' });
 	}
 
 	@Delete('/withdraw')
@@ -44,6 +41,6 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response
 	): Promise<void> {
 		await this.authService.withdrawUser(user.sub, user.username);
-		await removeCookie(res, 'access-token', { path: '/' });
+		await removeCookie(res, 'Access-Token', { path: '/' });
 	}
 }

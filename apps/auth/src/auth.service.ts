@@ -25,7 +25,6 @@ import { UserRepository } from './persistence/repository/user.repository';
 import { UserPassword } from './persistence/schema/user-password.schema';
 import { User } from './persistence/schema/user.schema';
 import { JwtPayload } from './type/jwt-payload.type';
-import { TUser } from './type/user.type';
 
 @Injectable()
 export class AuthService {
@@ -106,22 +105,16 @@ export class AuthService {
 		}
 	}
 
-	async validateJwtPayload(req: Request, payload: JwtPayload): Promise<TUser> {
+	async validateJwtPayload(req: Request, payload: JwtPayload): Promise<boolean> {
 		const { sub, username, role, iat, exp } = payload;
-		const token = req.headers.authorization?.replace('Bearer ', '');
 
-		if (!token) {
-			throw new UnauthorizedException('Please log in first!');
+		if (!(await this.userRepository.exists({ _id: sub, email: username }))) {
+			return false;
 		}
 
-		if (!(await this.userRepository.exists({ _id: sub }))) {
-			throw new NotFoundException(`User Not Found : ${sub}`);
-		}
-
-		if (!(await this.checkExpiration(token, exp))) {
+		if (!(await this.checkExpiration(exp))) {
 			const tokenResponseDTO = await this.reissueToken(sub, username, role);
-			// req['New-Token'] = tokenResponseDTO.accessToken;
-			console.log(tokenResponseDTO.accessToken);
+			req['New-Token'] = tokenResponseDTO.accessToken;
 			await this.redisRepository.set(
 				username,
 				tokenResponseDTO.refreshToken,
@@ -129,12 +122,12 @@ export class AuthService {
 			);
 		}
 
-		return { sub, username, role };
+		return true;
 	}
 
 	async logoutUser(): Promise<any> {}
 
-	async withdrawUser(userId: ObjectId, username: string): Promise<any> {
+	async withdrawUser(userId: ObjectId, username: string): Promise<void> {
 		const user = await this.userRepository.findOne({ _id: userId }, 'userPassword');
 		const deleteUser = this.userRepository.deleteOne({ _id: user._id });
 		const deleteUserPassword = this.userPasswordRepository.deleteOne({
@@ -192,7 +185,7 @@ export class AuthService {
 		return this.generateJwtTokens(sub, username, role);
 	}
 
-	private async checkExpiration(token: string, exp: number): Promise<boolean> {
+	private async checkExpiration(exp: number): Promise<boolean> {
 		const now = Math.floor(Date.now() / 1000);
 		return exp - now >= 180;
 	}
