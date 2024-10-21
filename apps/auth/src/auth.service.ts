@@ -136,9 +136,13 @@ export class AuthService {
 
 	async withdrawUser(userId: ObjectId, username: string): Promise<any> {
 		const user = await this.userRepository.findOne({ _id: userId }, 'userPassword');
-		await this.userRepository.deleteOne({ _id: user._id });
-		await this.userPasswordRepository.deleteOne({ _id: user.userPassword._id });
-		await this.redisRepository.delete(username);
+		const deleteUser = this.userRepository.deleteOne({ _id: user._id });
+		const deleteUserPassword = this.userPasswordRepository.deleteOne({
+			_id: user.userPassword._id
+		});
+		const deleteRefreshToken = this.redisRepository.delete(username);
+
+		await Promise.all([deleteUser, deleteUserPassword, deleteRefreshToken]);
 	}
 
 	private async generateJwtTokens(
