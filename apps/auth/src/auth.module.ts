@@ -55,14 +55,14 @@ import { UserService } from './user.service';
 		PassportModule.register({ defaultStrategy: 'jwt' }),
 		KafkaClientModule
 	],
-	controllers: [UserController, AuthController],
+	controllers: [AuthController, UserController],
 	providers: [
 		{ provide: APP_FILTER, useClass: GlobalExceptionFilter },
 		{ provide: APP_PIPE, useClass: ValidationPipe },
 		{ provide: APP_INTERCEPTOR, useClass: PipeInterceptor },
 		{ provide: APP_INTERCEPTOR, useClass: TokenInterceptor },
-		UserService,
 		AuthService,
+		UserService,
 		UserRepository,
 		UserPasswordRepository,
 		JwtStrategy

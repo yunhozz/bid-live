@@ -1,6 +1,17 @@
-import { UserPassword } from '../persistence/schema/user-password.schema';
-import { User } from '../persistence/schema/user.schema';
+import { JwtPayload } from './jwt-payload.type';
 
-export type TUser = Omit<User, '_id' | 'role'>;
+export type TUser = Omit<JwtPayload, 'iat' | 'exp'>;
 
-export type TUserPassword = Omit<UserPassword, '_id'>;
+export type GoogleUser = {
+	email: string;
+	firstName: string;
+	lastName: string;
+};
+
+export type KakaoUser = {
+	email: string;
+};
+
+export type NaverUser = {
+	email: string;
+};

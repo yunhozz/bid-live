@@ -8,5 +8,3 @@ export type JwtPayload = {
 	iat: number;
 	exp: number;
 };
-
-export type JwtUser = Omit<JwtPayload, 'iat' | 'exp'>;

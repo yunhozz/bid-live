@@ -73,6 +73,17 @@ export abstract class MongoRepository<TSchema extends MongoSchema> {
 		return found.length > 0;
 	}
 
+	async deleteOne(filterQuery: FilterQuery<TSchema>, ...joins: string[]): Promise<void> {
+		const document = await this.model
+			.findOneAndDelete(filterQuery)
+			.select(joins.map((j) => `+${j}`).join(' '))
+			.exec();
+		if (!document) {
+			this.logger.warn(`Document not found with filterQuery: ${filterQuery}`);
+			throw new NotFoundException('Document not found.');
+		}
+	}
+
 	async startTransaction() {
 		const session = await this.connection.startSession();
 		session.startTransaction();

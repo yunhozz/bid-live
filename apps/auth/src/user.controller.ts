@@ -1,21 +1,26 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
-import { UserLoginRequestDTO } from './dto/request/user-login-request.dto';
-import { JwtTokenResponseDTO } from './dto/response/jwt-token-response.dto';
+import { Page, PageRequest, ROLE, Roles, RolesGuard } from '@app/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 
 @Controller('users')
+@UseGuards(AuthGuard(), RolesGuard)
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
-	@Post('/sign-up')
-	async signUp(@Body() dto: CreateUserRequestDTO): Promise<ObjectId> {
-		return await this.userService.createUser(dto);
+	@Get()
+	@Roles(ROLE.admin)
+	async lookupUsers(
+		@Query('page') page: string = '1',
+		@Query('limit') limit: string = '10'
+	): Promise<Page<any>> {
+		const pageRequest = new PageRequest(parseInt(page), parseInt(limit));
+		return await this.userService.findAllUsersOnPage(pageRequest);
 	}
 
-	@Post('/sign-in')
-	async signIn(@Body() dto: UserLoginRequestDTO): Promise<JwtTokenResponseDTO> {
-		return await this.userService.loginUser(dto);
+	@Get('/:id')
+	@Roles(ROLE.admin)
+	async lookupUserDetails(@Param('id') id: string): Promise<any> {
+		return this.userService.findUserDetails(id);
 	}
 }
