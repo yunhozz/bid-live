@@ -1,9 +1,9 @@
 import {
 	CreateUserEvent,
-	KAFKA_CONSTANTS,
+	KafkaConstants,
 	ProducerService,
 	RedisRepository,
-	Role
+	TRole
 } from '@app/common';
 import {
 	BadRequestException,
@@ -28,6 +28,10 @@ import { JwtPayload } from './type/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
+	private readonly JWT_SECRET: string;
+	private readonly JWT_ACCESS_EXPIRES_IN: number;
+	private readonly JWT_REFRESH_EXPIRES_IN: number;
+
 	constructor(
 		private readonly userRepository: UserRepository,
 		private readonly userPasswordRepository: UserPasswordRepository,
@@ -35,7 +39,11 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 		private readonly producerService: ProducerService
-	) {}
+	) {
+		this.JWT_SECRET = configService.get('JWT_SECRET');
+		this.JWT_ACCESS_EXPIRES_IN = configService.get('JWT_ACCESS_EXPIRES_IN');
+		this.JWT_REFRESH_EXPIRES_IN = configService.get('JWT_REFRESH_EXPIRES_IN');
+	}
 
 	async createUser(dto: CreateUserRequestDTO): Promise<ObjectId> {
 		const email = dto.email;
@@ -63,7 +71,7 @@ export class AuthService {
 		const createdUser = await this.userRepository.create(userSchema);
 
 		await this.producerService.produce({
-			topic: KAFKA_CONSTANTS.CREATE_USER_TOPIC,
+			topic: KafkaConstants.CREATE_USER_TOPIC,
 			messages: [
 				{
 					value: JSON.stringify(
@@ -125,7 +133,9 @@ export class AuthService {
 		return true;
 	}
 
-	async logoutUser(): Promise<any> {}
+	async logoutUser(username: string): Promise<void> {
+		await this.redisRepository.delete(username);
+	}
 
 	async withdrawUser(userId: ObjectId, username: string): Promise<void> {
 		const user = await this.userRepository.findOne({ _id: userId }, 'userPassword');
@@ -141,44 +151,38 @@ export class AuthService {
 	private async generateJwtTokens(
 		sub: ObjectId,
 		username: string,
-		role: Role
+		role: TRole
 	): Promise<JwtTokenResponseDTO> {
 		const payload = { sub, username, role };
-		const secret = this.configService.get('JWT_SECRET');
-		const accessTokenExpiresIn = this.configService.get('JWT_ACCESS_EXPIRES_IN');
-		const refreshTokenExpiresIn = this.configService.get('JWT_REFRESH_EXPIRES_IN');
-
 		const accessToken = this.jwtService.sign(payload, {
-			secret,
-			expiresIn: `${accessTokenExpiresIn}s`
+			secret: this.JWT_SECRET,
+			expiresIn: `${this.JWT_ACCESS_EXPIRES_IN}s`
 		});
-
 		const refreshToken = this.jwtService.sign(payload, {
-			secret,
-			expiresIn: `${refreshTokenExpiresIn}s`
+			secret: this.JWT_SECRET,
+			expiresIn: `${this.JWT_REFRESH_EXPIRES_IN}s`
 		});
 
 		return new JwtTokenResponseDTO(
 			sub,
 			accessToken,
 			refreshToken,
-			accessTokenExpiresIn,
-			refreshTokenExpiresIn
+			this.JWT_ACCESS_EXPIRES_IN,
+			this.JWT_REFRESH_EXPIRES_IN
 		);
 	}
 
 	private async reissueToken(
 		sub: ObjectId,
 		username: string,
-		role: Role
+		role: TRole
 	): Promise<JwtTokenResponseDTO> {
 		let refreshToken = await this.redisRepository.get(username);
 		if (!refreshToken) {
 			throw new UnauthorizedException('Please log in again.');
 		}
 
-		const secret = this.configService.get('JWT_SECRET');
-		if (!this.jwtService.verify(refreshToken, { secret })) {
+		if (!this.jwtService.verify(refreshToken, { secret: this.JWT_SECRET })) {
 			throw new UnauthorizedException('Invalid refresh token.');
 		}
 

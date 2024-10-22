@@ -1,4 +1,4 @@
-import { GetUser, removeCookie, setCookie } from '@app/common';
+import { CookieName, GetUser, removeCookie, setCookie } from '@app/common';
 import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
@@ -24,14 +24,21 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response
 	): Promise<JwtTokenResponseDTO> {
 		const tokenResponseDTO = await this.authService.loginUser(dto);
-		await setCookie(res, 'Access-Token', tokenResponseDTO.accessToken, { path: '/' });
+		await setCookie(res, CookieName.accessToken, tokenResponseDTO.accessToken, { path: '/' });
 
 		return tokenResponseDTO;
 	}
 
 	@Delete('/logout')
-	async signOut(@Res({ passthrough: true }) res: Response): Promise<void> {
-		await removeCookie(res, 'Access-Token', { path: '/' });
+	@UseGuards(AuthGuard())
+	async signOut(
+		@GetUser('username') username: string,
+		@Res({ passthrough: true }) res: Response
+	): Promise<void> {
+		await Promise.all([
+			this.authService.logoutUser(username),
+			removeCookie(res, CookieName.accessToken, { path: '/' })
+		]);
 	}
 
 	@Delete('/withdraw')
@@ -40,7 +47,9 @@ export class AuthController {
 		@GetUser() user: TUser,
 		@Res({ passthrough: true }) res: Response
 	): Promise<void> {
-		await this.authService.withdrawUser(user.sub, user.username);
-		await removeCookie(res, 'Access-Token', { path: '/' });
+		await Promise.all([
+			this.authService.withdrawUser(user.sub, user.username),
+			removeCookie(res, CookieName.accessToken, { path: '/' })
+		]);
 	}
 }
