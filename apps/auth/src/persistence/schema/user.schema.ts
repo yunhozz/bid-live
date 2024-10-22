@@ -1,7 +1,7 @@
-import { MongoSchema, ROLE, Role } from '@app/common';
+import { MongoSchema, Role, TRole } from '@app/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
-import { PROVIDER, Provider } from '../../type/provider.type';
+import { Provider, TProvider } from '../../type/provider.type';
 import { UserPassword } from './user-password.schema';
 
 @Schema({ timestamps: true, versionKey: false })
@@ -16,10 +16,10 @@ export class User extends MongoSchema {
 	age: number;
 	@Prop({ unique: true })
 	phoneNumber: string;
-	@Prop({ type: String, default: ROLE.guest })
-	role: Role;
-	@Prop({ type: String, default: PROVIDER.local })
-	provider: Provider;
+	@Prop({ type: String, default: Role.admin })
+	role: TRole;
+	@Prop({ type: String, default: Provider.local })
+	provider: TProvider;
 	@Prop({ type: ObjectId, ref: UserPassword.name, select: false })
 	userPassword: UserPassword;
 }

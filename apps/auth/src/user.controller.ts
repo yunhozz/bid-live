@@ -1,4 +1,4 @@
-import { Page, PageRequest, ROLE, Roles, RolesGuard } from '@app/common';
+import { Page, PageRequest, Role, Roles, RolesGuard } from '@app/common';
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserResponseDTO } from './dto/response/user-response.dto';
@@ -10,7 +10,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Get()
-	@Roles(ROLE.admin)
+	@Roles(Role.admin)
 	async lookupUsers(
 		@Query('page') page: string = '1',
 		@Query('limit') limit: string = '10'
@@ -20,7 +20,7 @@ export class UserController {
 	}
 
 	@Get('/:id')
-	@Roles(ROLE.admin)
+	@Roles(Role.admin)
 	async lookupUserDetails(@Param('id') id: string): Promise<UserResponseDTO> {
 		return this.userService.findUserDetails(id);
 	}

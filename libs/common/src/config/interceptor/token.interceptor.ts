@@ -1,4 +1,4 @@
-import { setCookie } from '@app/common/utils/cookie.utils';
+import { CookieName, setCookie } from '@app/common/utils/cookie.utils';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
@@ -17,7 +17,7 @@ export class TokenInterceptor implements NestInterceptor {
 			tap(async () => {
 				const token = req['New-Token'];
 				if (token) {
-					await setCookie(res, 'Access-Token', token, { path: '/' });
+					await setCookie(res, CookieName.accessToken, token, { path: '/' });
 				}
 			})
 		);

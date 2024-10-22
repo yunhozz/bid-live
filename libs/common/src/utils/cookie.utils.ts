@@ -1,7 +1,13 @@
 import { CookieOptions, Request, Response } from 'express';
 import * as process from 'node:process';
 
-const cookieOptions: CookieOptions = {
+export const CookieName = {
+	accessToken: 'Access-Token'
+} as const;
+
+export type TCookieName = (typeof CookieName)[keyof typeof CookieName];
+
+const defaultOptions: CookieOptions = {
 	httpOnly: true,
 	secure: process.env.NODE_ENV === 'production',
 	sameSite: 'lax'
@@ -9,13 +15,13 @@ const cookieOptions: CookieOptions = {
 
 export const setCookie = async (
 	res: Response,
-	name: string,
+	name: TCookieName,
 	value: string,
 	options?: CookieOptions
-) => res.cookie(name, value, { ...cookieOptions, ...options });
+) => res.cookie(name, value, { ...defaultOptions, ...options });
 
-export const getCookie = async (req: Request, name: string): Promise<string | undefined> =>
+export const getCookie = async (req: Request, name: TCookieName): Promise<string | undefined> =>
 	req.cookies?.[name];
 
-export const removeCookie = async (res: Response, name: string, options?: CookieOptions) =>
-	res.clearCookie(name, { ...cookieOptions, ...options });
+export const removeCookie = async (res: Response, name: TCookieName, options?: CookieOptions) =>
+	res.clearCookie(name, { ...defaultOptions, ...options });

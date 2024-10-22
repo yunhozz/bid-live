@@ -1,6 +1,6 @@
-import { Role } from '@app/common';
+import { TRole } from '@app/common';
 import { User } from '../../persistence/schema/user.schema';
-import { Provider } from '../../type/provider.type';
+import { TProvider } from '../../type/provider.type';
 
 export class UserResponseDTO {
 	readonly email: string;
@@ -8,8 +8,8 @@ export class UserResponseDTO {
 	readonly nickname: string;
 	readonly age: number;
 	readonly phoneNumber: string;
-	readonly role: Role;
-	readonly provider: Provider;
+	readonly role: TRole;
+	readonly provider: TProvider;
 
 	constructor(user: User) {
 		this.email = user.email;
