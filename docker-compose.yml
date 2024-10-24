@@ -1,0 +1,59 @@
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    env_file:
+      - ./apps/auth/.env
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+  mongodb-primary:
+    image: mongo:6.0.3
+    environment:
+      - MONGO_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_REPLICA_SET_MODE=primary
+      - MONGO_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - 'mongodb_master_data:/docker.io/mongo'
+    ports:
+      - '27017:27017'
+
+  mongodb-secondary:
+    image: mongo:6.0.3
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGO_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGO_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGO_INITIAL_PRIMARY_ROOT_USERNAME=root
+      - MONGO_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGO_REPLICA_SET_MODE=secondary
+      - MONGO_REPLICA_SET_KEY=replicasetkey123
+
+  mongodb-arbiter:
+    image: mongo:6.0.3
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGO_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGO_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGO_INITIAL_PRIMARY_ROOT_USERNAME=root
+      - MONGO_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGO_REPLICA_SET_MODE=arbiter
+      - MONGO_REPLICA_SET_KEY=replicasetkey123
+
+volumes:
+  mongodb_master_data:
+    driver: local
