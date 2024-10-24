@@ -2,10 +2,10 @@ import { IsNumber } from 'class-validator';
 
 export class PageRequest {
 	@IsNumber()
-	pageNo?: number;
+	private readonly pageNo?: number;
 
 	@IsNumber()
-	pageSize?: number;
+	private readonly pageSize?: number;
 
 	constructor(pageNo?: number, pageSize?: number) {
 		this.pageNo = pageNo ?? 1;

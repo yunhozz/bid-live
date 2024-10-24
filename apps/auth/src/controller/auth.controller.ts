@@ -2,19 +2,18 @@ import { CookieName, GetUser, removeCookie, setCookie } from '@app/common';
 import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { ObjectId } from 'mongodb';
-import { AuthService } from './auth.service';
-import { CreateUserRequestDTO } from './dto/request/create-user-request.dto';
-import { UserLoginRequestDTO } from './dto/request/user-login-request.dto';
-import { JwtTokenResponseDTO } from './dto/response/jwt-token-response.dto';
-import { TUser } from './type/user.type';
+import { CreateUserRequestDTO } from '../dto/request/create-user-request.dto';
+import { UserLoginRequestDTO } from '../dto/request/user-login-request.dto';
+import { JwtTokenResponseDTO } from '../dto/response/jwt-token-response.dto';
+import { AuthService } from '../service/auth.service';
+import { TUser } from '../type/user.type';
 
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('/sign-up')
-	async signUp(@Body() dto: CreateUserRequestDTO): Promise<ObjectId> {
+	async signUp(@Body() dto: CreateUserRequestDTO): Promise<number> {
 		return await this.authService.createUser(dto);
 	}
 
