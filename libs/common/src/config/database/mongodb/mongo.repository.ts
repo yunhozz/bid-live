@@ -1,4 +1,4 @@
-import { MongoSchema } from '@app/common/config/database/mongo.schema';
+import { MongoSchema } from '@app/common/config/database/mongodb/mongo.schema';
 import { PageRequest } from '@app/common/pagination/page-request';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Connection, FilterQuery, Model, SaveOptions, Types, UpdateQuery } from 'mongoose';
