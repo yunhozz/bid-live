@@ -29,6 +29,7 @@ import { UserService } from './user.service';
 			validationSchema: Joi.object({
 				SERVICE_PORT: Joi.number().required(),
 				MONGODB_URI: Joi.string().required(),
+				POSTGRES_URI: Joi.string().required(),
 				JWT_SECRET: Joi.string().required(),
 				JWT_ACCESS_EXPIRES_IN: Joi.string().required(),
 				JWT_REFRESH_EXPIRES_IN: Joi.string().required(),
