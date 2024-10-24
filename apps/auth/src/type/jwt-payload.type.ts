@@ -1,10 +1,9 @@
-import { TRole } from '@app/common';
-import { ObjectId } from 'mongodb';
+import { Role } from '@prisma/client';
 
 export type JwtPayload = {
-	sub: ObjectId;
+	sub: number;
 	username: string;
-	role: TRole;
+	role: Role;
 	iat: number;
 	exp: number;
 };

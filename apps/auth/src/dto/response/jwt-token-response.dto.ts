@@ -1,14 +1,12 @@
-import { ObjectId } from 'mongodb';
-
 export class JwtTokenResponseDTO {
-	readonly sub: ObjectId;
+	readonly sub: number;
 	readonly accessToken: string;
 	readonly refreshToken: string;
 	readonly accessTokenExpires: number;
 	readonly refreshTokenExpires: number;
 
 	constructor(
-		sub: ObjectId,
+		sub: number,
 		accessToken: string,
 		refreshToken: string,
 		accessTokenExpires: number,
