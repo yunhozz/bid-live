@@ -4,6 +4,7 @@ export * from './config/database/mongodb/mongo.repository';
 export * from './config/database/mongodb/mongo.schema';
 export * from './config/database/redis/redis.repository';
 export * from './config/filter/global-exception.filter';
+export * from './config/filter/prisma-exception.filter';
 export * from './config/interceptor/pipe.interceptor';
 export * from './config/interceptor/token.interceptor';
 export * from './config/guard/roles.guard';

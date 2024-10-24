@@ -3,6 +3,7 @@ import {
 	GlobalExceptionFilter,
 	KafkaClientModule,
 	PipeInterceptor,
+	PrismaExceptionFilter,
 	TokenInterceptor
 } from '@app/common';
 import { Module, ValidationPipe } from '@nestjs/common';
@@ -59,6 +60,7 @@ import { UserService } from './user.service';
 	controllers: [AuthController, UserController],
 	providers: [
 		{ provide: APP_FILTER, useClass: GlobalExceptionFilter },
+		{ provide: APP_FILTER, useClass: PrismaExceptionFilter },
 		{ provide: APP_PIPE, useClass: ValidationPipe },
 		{ provide: APP_INTERCEPTOR, useClass: PipeInterceptor },
 		{ provide: APP_INTERCEPTOR, useClass: TokenInterceptor },
