@@ -1,5 +1,6 @@
 export * from './config/database/database.module';
 export * from './config/database/prisma/prisma.service';
+export * from './config/database/prisma/prisma.repository';
 export * from './config/database/mongodb/mongo.repository';
 export * from './config/database/mongodb/mongo.schema';
 export * from './config/database/redis/redis.repository';
